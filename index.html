@@ -1,0 +1,125 @@
+<!doctype html>
+<html ng-app="music">
+
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.2/angular.min.js"></script>
+</head>
+
+<body ng-controller="ArtistSearch">
+
+  <div>{{message}}</div>
+
+  <div> {{error}} </div>
+  <div>
+    <h1> Artist : {{artist1.name}} </h1>
+    <h1> {{artist1.url}} </h1>
+
+  </div>
+  <form name="userform">
+    <input type="search" placeholder="Search music artist name" ng-model="artist" value="abc" />
+    <input type="submit" value="search" ng-click="search(artist)" />
+    <!-- <input type="search" placeholder="Search top artist name in the country" ng-model="country" value="def" />
+    <input type="submit" value="search" ng-click="searchArtistInCountry(countryName)" /> -->
+    <h1> Select the following options to view for an artist: </h1>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Album Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="x in topAlbumsList track by $index">
+        <td>{{x}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Track Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="y in topTracksList track by $index">
+        <td>{{y}}</td>
+      </tr>
+    </tbody>
+
+  </table>
+
+  </div>
+
+  <script>
+    (function () {
+      var app = angular.module("music", []);
+      var ArtistSearch = function ($scope, $http, $rootScope) {
+        $scope.topAlbumsList = [];
+        $scope.topTracksList = [];
+
+        var error = function (reason) {
+          $scope.error = "could not fetch artist";
+        }
+
+        var topTracks = function (response) {
+          // console.log("response for tracks = " + JSON.stringify(response.data.toptracks.track[0].name));
+          $scope.topTracksList = [];
+          for (var i = 0; i < response.data.toptracks.track.length; i++) {
+            $scope.topTracksList.push(response.data.toptracks.track[i].name);
+          }
+          //console.log("topTracks = " + $scope.topTracksList);
+
+          // $scope.topTracks = response.data.toptracks.track[0].name;
+        }
+
+        var topAlbums = function (response) {
+          //console.log("response for albums= " + JSON.stringify(response.data.topalbums));
+          $scope.topAlbumsList = [];
+          for (var i = 0; i < response.data.topalbums.album.length; i++) {
+            $scope.topAlbumsList.push(response.data.topalbums.album[i].name);
+          }
+          // console.log("albums = " + $scope.topAlbumsList);
+
+        }
+
+
+        var artistCall = function (response) {
+          // console.log("response = " + JSON.stringify(response.data.results.artistmatches.artist[0].image[0].text));
+          $rootScope.artist1 = response.data.results.artistmatches.artist[0];
+          // console.log("apurva =  " + JSON.stringify($rootScope.artist1));
+        };
+
+        var findArtistInCountry = function (response) {
+          console.log(response.data.results.topartists.artist[0].name);
+          $scope.artistNameInCountry = response.data.results.topartists.artist[0].name;
+        }
+
+        $scope.search = function (artist) {
+          $http.get("http://ws.audioscrobbler.com/2.0/?method=artist.search&artist=" + artist + "&api_key=befc5158ec18d0cf19251a8db4bf7100&format=json").then(artistCall, error);
+          $http.get("http://ws.audioscrobbler.com/2.0/?method=artist.gettoptracks&artist=" + artist + "&api_key=befc5158ec18d0cf19251a8db4bf7100&format=json").then(topTracks, error);
+          $http.get("http://ws.audioscrobbler.com/2.0/?method=artist.gettopalbums&artist=" + artist + "&api_key=befc5158ec18d0cf19251a8db4bf7100&format=json").then(topAlbums, error);
+          //console.log("http://ws.audioscrobbler.com/2.0/?method=artist.search&artist="+artist+"&api_key=befc5158ec18d0cf19251a8db4bf7100&format=json");
+        };
+
+        // $scope.searchArtistByCountryName = function(countryName){
+        //   console.log("inside second search");
+        //   $hhtp.get("http://ws.audioscrobbler.com/2.0/?method=geo.gettopartists&country=spain&api_key=befc5158ec18d0cf19251a8db4bf7100&format=json").then(findArtistInCountry,error);
+        // }
+
+
+        // $scope.artist = "shakira";
+        $scope.message = "Welcome to review artist page";
+      }
+      app.controller("ArtistSearch", ArtistSearch);
+    }
+
+
+
+      ());
+  </script>
+
+</body>
+
+</html>
