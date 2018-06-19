@@ -1,0 +1,61 @@
+<!doctype html>
+<html ng-app="music">
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.2/angular.min.js"></script>
+</head>
+
+<body ng-controller="ArtistSearch">
+
+    <div> {{error}} </div>
+
+    <form name="userform">
+        <!-- <input type="search" placeholder="Search music artist name" ng-model="artist" value="abc" />-->
+        <input type="search" placeholder="Search artist by country" ng-model="country" value="def" />
+        <input type="submit" value="search" ng-click="searchArtistInCountry(country)" />
+    </form>
+
+    <div>
+        <h1>
+            <ul> Top Artist in Country : </ul>
+        </h1>
+        <li ng-repeat="z in topArtistInCountry track by $index"> {{z}}</li>
+    </div>
+
+    <script>
+        (function () {
+            var app = angular.module("music", []);
+            var ArtistSearch = function ($scope, $http, $rootScope) {
+                $scope.topArtistInCountry = [];
+
+                var error = function (reason) {
+                    $scope.error = "could not fetch artist";
+                }
+
+                var findArtistInCountry = function (response) {
+                    $scope.topArtistInCountry = [];
+                    for (var i = 0; i < response.data.topartists.artist.length; i++) {
+                        $scope.topArtistInCountry.push(response.data.topartists.artist[i].name);
+                        //  console.log("$scope.topArtistInCountry = " + $scope.topArtistInCountry)
+                    }
+                }
+
+
+                $scope.searchArtistInCountry = function (country) {
+                    // console.log("inside second search");
+                    $http.get("http://ws.audioscrobbler.com/2.0/?method=geo.gettopartists&country=" + country + "&api_key=befc5158ec18d0cf19251a8db4bf7100&format=json").then(findArtistInCountry, error);
+                }
+
+                $scope.message = "Welcome to review artist page";
+            }
+            app.controller("ArtistSearch", ArtistSearch);
+        }
+
+
+
+            ());
+    </script>
+
+</body>
+
+</html>

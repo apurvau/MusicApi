@@ -15,41 +15,54 @@
     <h1> {{artist1.url}} </h1>
 
   </div>
+
   <form name="userform">
     <input type="search" placeholder="Search music artist name" ng-model="artist" value="abc" />
     <input type="submit" value="search" ng-click="search(artist)" />
-    <!-- <input type="search" placeholder="Search top artist name in the country" ng-model="country" value="def" />
-    <input type="submit" value="search" ng-click="searchArtistInCountry(countryName)" /> -->
-    <h1> Select the following options to view for an artist: </h1>
+    <input type="radio" ng-model="artist2" value="topAlbums">Album
+    <input type="radio" ng-model="artist2" value="topTracks">Artist
+    <input type="radio" ng-model="artist2" value="Info">Artist Info
+    <input type="radio" ng-model="artist2" value="similarArtist">Similar Artist
   </form>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Album Name</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr ng-repeat="x in topAlbumsList track by $index">
-        <td>{{x}}</td>
-      </tr>
-    </tbody>
-  </table>
+  <p>
+    <a href="file:///C:/Users/Apurva/Desktop/MusicApi/index1.html">Click Here for Searching Artist by Country</a>
+  </p>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Track Name</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr ng-repeat="y in topTracksList track by $index">
-        <td>{{y}}</td>
-      </tr>
-    </tbody>
+  <div ng-switch="artist2">
+    <div ng-switch-when="topAlbums">
+      <h1>
+        <ul> Top Albums : </ul>
+      </h1>
+      <li ng-repeat="x in topAlbumsList track by $index"> {{x}}</li>
+    </div>
+  </div>
 
-  </table>
+  <div ng-switch="artist2">
+    <div ng-switch-when="topTracks">
+      <h1>
+        <ul> Top Tracks : </ul>
+      </h1>
+      <li ng-repeat="y in topTracksList track by $index"> {{y}}</li>
+    </div>
+  </div>
 
+  <div ng-switch="artist2">
+    <div ng-switch-when="Info">
+      <h1>
+        Artist Information :
+      </h1>
+      <h3>{{information}}</h3>
+    </div>
+  </div>
+
+  <div ng-switch="artist2">
+    <div ng-switch-when="similarArtist">
+      <h1>
+        <ul> Similar Artist : </ul>
+      </h1>
+      <li ng-repeat="a in similarArtistList track by $index"> {{a}}</li>
+    </div>
   </div>
 
   <script>
@@ -58,58 +71,54 @@
       var ArtistSearch = function ($scope, $http, $rootScope) {
         $scope.topAlbumsList = [];
         $scope.topTracksList = [];
+        $scope.similarArtistList = [];
 
         var error = function (reason) {
           $scope.error = "could not fetch artist";
         }
 
         var topTracks = function (response) {
-          // console.log("response for tracks = " + JSON.stringify(response.data.toptracks.track[0].name));
           $scope.topTracksList = [];
           for (var i = 0; i < response.data.toptracks.track.length; i++) {
             $scope.topTracksList.push(response.data.toptracks.track[i].name);
           }
-          //console.log("topTracks = " + $scope.topTracksList);
-
-          // $scope.topTracks = response.data.toptracks.track[0].name;
         }
 
         var topAlbums = function (response) {
-          //console.log("response for albums= " + JSON.stringify(response.data.topalbums));
           $scope.topAlbumsList = [];
           for (var i = 0; i < response.data.topalbums.album.length; i++) {
             $scope.topAlbumsList.push(response.data.topalbums.album[i].name);
           }
-          // console.log("albums = " + $scope.topAlbumsList);
+        }
 
+        var artistInformation = function (response) {
+          $scope.information = response.data.artist.bio.content;
+          //console.log($scope.information);
+        }
+
+        var similarArtist = function (response) {
+          $scope.similarArtistList = [];
+          for (var i = 0; i < response.data.similarartists.artist.length; i++) {
+            $scope.similarArtistList.push(response.data.similarartists.artist[i].name);
+          }
         }
 
 
         var artistCall = function (response) {
-          // console.log("response = " + JSON.stringify(response.data.results.artistmatches.artist[0].image[0].text));
-          $rootScope.artist1 = response.data.results.artistmatches.artist[0];
-          // console.log("apurva =  " + JSON.stringify($rootScope.artist1));
-        };
 
-        var findArtistInCountry = function (response) {
-          console.log(response.data.results.topartists.artist[0].name);
-          $scope.artistNameInCountry = response.data.results.topartists.artist[0].name;
-        }
+          $rootScope.artist1 = response.data.results.artistmatches.artist[0];
+
+        };
 
         $scope.search = function (artist) {
           $http.get("http://ws.audioscrobbler.com/2.0/?method=artist.search&artist=" + artist + "&api_key=befc5158ec18d0cf19251a8db4bf7100&format=json").then(artistCall, error);
           $http.get("http://ws.audioscrobbler.com/2.0/?method=artist.gettoptracks&artist=" + artist + "&api_key=befc5158ec18d0cf19251a8db4bf7100&format=json").then(topTracks, error);
           $http.get("http://ws.audioscrobbler.com/2.0/?method=artist.gettopalbums&artist=" + artist + "&api_key=befc5158ec18d0cf19251a8db4bf7100&format=json").then(topAlbums, error);
-          //console.log("http://ws.audioscrobbler.com/2.0/?method=artist.search&artist="+artist+"&api_key=befc5158ec18d0cf19251a8db4bf7100&format=json");
+          $http.get("http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=" + artist + "&api_key=befc5158ec18d0cf19251a8db4bf7100&format=json").then(artistInformation, error);
+          $http.get("http://ws.audioscrobbler.com/2.0/?method=artist.getsimilar&artist=" + artist + "&api_key=befc5158ec18d0cf19251a8db4bf7100&format=json").then(similarArtist, error);
+
         };
 
-        // $scope.searchArtistByCountryName = function(countryName){
-        //   console.log("inside second search");
-        //   $hhtp.get("http://ws.audioscrobbler.com/2.0/?method=geo.gettopartists&country=spain&api_key=befc5158ec18d0cf19251a8db4bf7100&format=json").then(findArtistInCountry,error);
-        // }
-
-
-        // $scope.artist = "shakira";
         $scope.message = "Welcome to review artist page";
       }
       app.controller("ArtistSearch", ArtistSearch);
