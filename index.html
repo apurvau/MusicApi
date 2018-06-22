@@ -5,20 +5,44 @@
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.2/angular.min.js"></script>
 </head>
 
+<style>
+  body {
+    background-image: url('https://media.giphy.com/media/3oz8xWbLkqdlJf7qQE/giphy.gif');
+    background-size: cover;
+  }
+
+  h1 {
+    color: black;
+  }
+
+  h1 {
+    text-align: center;
+  }
+
+  p {
+    color: red;
+  }
+</style>
+
 <body ng-controller="ArtistSearch">
 
-  <div>{{message}}</div>
+  <h1>{{message}}</h1>
+  <br>
+  <br>
 
   <div> {{error}} </div>
   <div>
-    <h1> Artist : {{artist1.name}} </h1>
-    <h1> {{artist1.url}} </h1>
+    <h2> Artist : {{artist1.name}} </h2>
+    <h2> {{artist1.url}} </h2>
 
   </div>
 
   <form name="userform">
     <input type="search" placeholder="Search music artist name" ng-model="artist" value="abc" />
     <input type="submit" value="search" ng-click="search(artist)" />
+    <br>
+    <br>
+    <br>
     <input type="radio" ng-model="artist2" value="topAlbums">Album
     <input type="radio" ng-model="artist2" value="topTracks">Artist
     <input type="radio" ng-model="artist2" value="Info">Artist Info
@@ -26,41 +50,41 @@
   </form>
 
   <p>
-    <a href="file:///C:/Users/Apurva/Desktop/MusicApi/index1.html">Click Here for Searching Artist by Country</a>
+    <a href="file:///C:/Users/Apurva/Desktop/MusicApi/countryArtist.html">Click Here for Searching Artist by Country</a>
   </p>
 
   <div ng-switch="artist2">
     <div ng-switch-when="topAlbums">
-      <h1>
+      <h2>
         <ul> Top Albums : </ul>
-      </h1>
+      </h2>
       <li ng-repeat="x in topAlbumsList track by $index"> {{x}}</li>
     </div>
   </div>
 
   <div ng-switch="artist2">
     <div ng-switch-when="topTracks">
-      <h1>
+      <h2>
         <ul> Top Tracks : </ul>
-      </h1>
+      </h2>
       <li ng-repeat="y in topTracksList track by $index"> {{y}}</li>
     </div>
   </div>
 
   <div ng-switch="artist2">
     <div ng-switch-when="Info">
-      <h1>
+      <h2>
         Artist Information :
-      </h1>
-      <h3>{{information}}</h3>
+      </h2>
+      <h3 style="color:black">{{information}}</h3>
     </div>
   </div>
 
   <div ng-switch="artist2">
     <div ng-switch-when="similarArtist">
-      <h1>
+      <h2>
         <ul> Similar Artist : </ul>
-      </h1>
+      </h2>
       <li ng-repeat="a in similarArtistList track by $index"> {{a}}</li>
     </div>
   </div>
@@ -93,7 +117,6 @@
 
         var artistInformation = function (response) {
           $scope.information = response.data.artist.bio.content;
-          //console.log($scope.information);
         }
 
         var similarArtist = function (response) {
@@ -105,9 +128,7 @@
 
 
         var artistCall = function (response) {
-
           $rootScope.artist1 = response.data.results.artistmatches.artist[0];
-
         };
 
         $scope.search = function (artist) {
@@ -116,16 +137,12 @@
           $http.get("http://ws.audioscrobbler.com/2.0/?method=artist.gettopalbums&artist=" + artist + "&api_key=befc5158ec18d0cf19251a8db4bf7100&format=json").then(topAlbums, error);
           $http.get("http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=" + artist + "&api_key=befc5158ec18d0cf19251a8db4bf7100&format=json").then(artistInformation, error);
           $http.get("http://ws.audioscrobbler.com/2.0/?method=artist.getsimilar&artist=" + artist + "&api_key=befc5158ec18d0cf19251a8db4bf7100&format=json").then(similarArtist, error);
-
         };
 
-        $scope.message = "Welcome to review artist page";
+        $scope.message = "Review Information About Your Fav. Artist";
       }
       app.controller("ArtistSearch", ArtistSearch);
     }
-
-
-
       ());
   </script>
 
